@@ -1,16 +1,17 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /**
  * External Dependencies
  */
-const { ipcMain: ipc } = require( 'electron' ); // eslint-disable-line import/no-extraneous-dependencies
+const { ipcMain: ipc } = require( 'electron' );
 const { URL, format } = require( 'url' );
 
 /**
  * Internal dependencies
  */
-const Config = require( 'desktop/lib/config' );
+const Config = require( 'lib/config' );
 const { handleJetpackEnableSSO, handleUndefined } = require( './editor' );
 const openInBrowser = require( './open-in-browser' );
-const log = require( 'desktop/lib/logger' )( 'desktop:external-links' );
+const log = require( 'lib/logger' )( 'desktop:external-links' );
 
 /**
  * Module variables
@@ -98,5 +99,10 @@ module.exports = function ( mainWindow ) {
 			default:
 				handleUndefined( mainWindow, info );
 		}
+	} );
+
+	ipc.on( 'view-post-clicked', ( _, url ) => {
+		log.info( `View Post handler for URL: ${ url }` );
+		openInBrowser( null, url );
 	} );
 };

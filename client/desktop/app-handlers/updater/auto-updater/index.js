@@ -1,18 +1,19 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /**
  * External Dependencies
  */
-const { app } = require( 'electron' ); // eslint-disable-line import/no-extraneous-dependencies
+const { app } = require( 'electron' );
 const { autoUpdater } = require( 'electron-updater' );
 
 /**
  * Internal dependencies
  */
-const AppQuit = require( 'desktop/lib/app-quit' );
-const Config = require( 'desktop/lib/config' );
-const debugTools = require( 'desktop/lib/debug-tools' );
-const { bumpStat, sanitizeVersion, getPlatform } = require( 'desktop/lib/desktop-analytics' );
-const Updater = require( 'desktop/lib/updater' );
-const log = require( 'desktop/lib/logger' )( 'desktop:updater:auto' );
+const AppQuit = require( 'lib/app-quit' );
+const Config = require( 'lib/config' );
+const debugTools = require( 'lib/debug-tools' );
+const { bumpStat, sanitizeVersion, getPlatform } = require( 'lib/desktop-analytics' );
+const Updater = require( 'lib/updater' );
+const log = require( 'lib/logger' )( 'desktop:updater:auto' );
 
 const statsPlatform = getPlatform( process.platform );
 const sanitizedVersion = sanitizeVersion( app.getVersion() );
@@ -84,6 +85,8 @@ class AutoUpdater extends Updater {
 	}
 
 	onConfirm() {
+		log.info( `User selected 'Update & Restart'...` );
+
 		AppQuit.allowQuit();
 		autoUpdater.quitAndInstall();
 

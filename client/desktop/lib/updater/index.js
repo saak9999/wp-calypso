@@ -1,15 +1,16 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /**
  * External Dependencies
  */
-const { app, dialog } = require( 'electron' ); // eslint-disable-line import/no-extraneous-dependencies
+const { app, dialog, BrowserWindow } = require( 'electron' );
 const { EventEmitter } = require( 'events' );
 
 /**
  * Internal dependencies
  */
-const platform = require( 'desktop/lib/platform' );
-const config = require( 'desktop/lib/config' );
-const log = require( 'desktop/lib/logger' )( 'desktop:updater' );
+const platform = require( 'lib/platform' );
+const config = require( 'lib/config' );
+const log = require( 'lib/logger' )( 'desktop:updater' );
 
 class Updater extends EventEmitter {
 	constructor( options ) {
@@ -48,7 +49,9 @@ class Updater extends EventEmitter {
 
 	onCancel() {}
 
-	notify() {
+	async notify() {
+		const mainWindow = BrowserWindow.getFocusedWindow();
+
 		const updateDialogOptions = {
 			buttons: [ this.sanitizeButtonLabel( this.confirmLabel ), 'Cancel' ],
 			title: 'Update Available',
@@ -59,18 +62,18 @@ class Updater extends EventEmitter {
 		if ( ! this._hasPrompted ) {
 			this._hasPrompted = true;
 
-			dialog.showMessageBox( updateDialogOptions, ( button ) => {
-				this._hasPrompted = false;
+			const selected = await dialog.showMessageBox( mainWindow, updateDialogOptions );
+			const button = selected.response;
 
-				if ( button === 0 ) {
-					// Confirm
-					this.onConfirm();
-				} else {
-					this.onCancel();
-				}
+			if ( button === 0 ) {
+				// Confirm
+				this.onConfirm();
+			} else {
+				this.onCancel();
+			}
 
-				this.emit( 'end' );
-			} );
+			this._hasPrompted = false;
+			this.emit( 'end' );
 		}
 	}
 
